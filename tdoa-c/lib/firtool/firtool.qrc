@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/new/icons">
+        <file>disk_blue_window.png</file>
+        <file>disk_blue.png</file>
+        <file>document_new.png</file>
+        <file>gear.png</file>
+        <file>document_into.png</file>
+        <file>cpu_preferences.png</file>
+        <file>toolbox.ico</file>
+        <file>exit.png</file>
+        <file>about.png</file>
+        <file>icon-qt-in-a-box.png</file>
+        <file>cpu_inspect.png</file>
+    </qresource>
+</RCC>
