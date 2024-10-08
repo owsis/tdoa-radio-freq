@@ -19,7 +19,7 @@ First frequency is the reference transmitter, second frequency is the measuremen
 * Delay analysis of reference signal to synchronize the receptions
 * Delay analysis of measurement signal to measure the TDOAs
 * Available Options: bandwidth filtering, correlation smoothing, correlation type switching, signal interpolation
-* Mulitlateration calculations for localization
+* Multi-Lateration/Triangulation calculations for localization
 
 ### Output:
 A html/javascript file with a map showing the receivers, the hyperbolas and the most likely position of the transmitter.
