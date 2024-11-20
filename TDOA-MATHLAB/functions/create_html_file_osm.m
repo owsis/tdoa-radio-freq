@@ -166,6 +166,10 @@ function [ output_args ] = create_html_file_osm( filename, rx_lat, rx_long, hype
     max_heat_mag = 0;
     max_heat_mag_lat = 0;
     max_heat_mag_long = 0;
+
+    d_max = 0;
+    d_target = 0;
+    akurasi = 0;
     
     fprintf(fid, '\n  var heatmapData = L.heatLayer([\n');
             
@@ -177,6 +181,22 @@ function [ output_args ] = create_html_file_osm( filename, rx_lat, rx_long, hype
                 max_heat_mag_long = heat_long(ii_long);
             end
             if (heat_mag(ii_long, ii_lat) > heatmap_threshold) || ((ii_lat == heat_num_points) && (ii_long == heat_num_points))
+                if (heat_mag(ii_long, ii_lat) == 1)
+                    [x_hasil, y_hasil] = latlong2xy(heat_lat(ii_lat), heat_long(ii_long), rx_lat(6), rx_long(6));
+                    [x_target, y_target] = latlong2xy(rx_lat(4), rx_long(4), rx_lat(6), rx_long(6));
+                    % disp(['x_hasil => ', num2str(x_hasil)]);
+                    % disp(['y_hasil => ', num2str(y_hasil)]);
+                    % disp(['x_target => ', num2str(x_target)]);
+                    % disp(['y_target => ', num2str(y_target)]);
+
+                    distance_hasil = 1000 * sqrt( (x_hasil * x_hasil) + (y_hasil * y_hasil));
+                    distance_target = 1000 * sqrt( (x_target * x_target) + (y_target * y_target));
+                    % disp(['dist_hasil > ', num2str(distance_hasil)]);
+                    % disp(['dist_target > ', num2str(distance_target)]);
+                    
+                    akurasi = 100 - ((abs(distance_target - distance_hasil) / distance_target) * 100);
+                    disp(['akurasi => ', num2str(akurasi), '%']);
+                end
                 fprintf(fid, ['    [' num2str(heat_lat(ii_lat), 8) ', ' num2str(heat_long(ii_long), 8) ', ' num2str(heat_mag(ii_long, ii_lat)) ']']) ;
 
                 if (ii_lat == heat_num_points) && (ii_long == heat_num_points)
@@ -200,7 +220,7 @@ function [ output_args ] = create_html_file_osm( filename, rx_lat, rx_long, hype
     fprintf(fid, ['  var maxHeatPoint = L.marker([' num2str(max_heat_mag_lat, 8) ', ' num2str(max_heat_mag_long, 8) '], \n'...
                   '                            {title: \'' Max Heat Point \'', icon: hasilPointIcon}) \n'...
                   '                            .addTo(map) \n']);
-    fprintf(fid, ['                            .bindPopup(\'' Max Heat | ' num2str(max_heat_mag_lat, 8) ', ' num2str(max_heat_mag_long, 8) ' \''); \n\n']);
+    fprintf(fid, ['                            .bindPopup(\'' Max Heat | ' num2str(max_heat_mag_lat, 8) ', ' num2str(max_heat_mag_long, 8) ', ' num2str(akurasi) '% \''); \n\n']);
     
     
     %% footer
