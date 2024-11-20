@@ -235,6 +235,7 @@ function [ doa_meters, doa_samples, reliability ] = tdoa2(signal1_complex, signa
             1:length(corr_signal_2), delay_mask, 'r', idx1, corr_signal_1(idx1),'dr', idx3, corr_signal_3(idx3),'dr');
             
         title('REFERENCE SIGNAL: correlations, full span'); legend('ref (slice 1)','ref check (slice 3)', 'ref interp'); ylim([-0.1 1.1]); grid;
+        ylabel('Correlation');
 
         win_len1 = 10000;
         win_len2 = 500;
@@ -255,6 +256,7 @@ function [ doa_meters, doa_samples, reliability ] = tdoa2(signal1_complex, signa
         subplot(4,2,3);
         plot(idx_left:idx_right, corr_signal_1(idx_left:idx_right), 'o-', idx_left:idx_right, corr_signal_3(idx_left:idx_right), 'x-', idx_left:idx_right, delay_mask(idx_left:idx_right), 'r', idx1, corr_signal_1(idx1),'dr', idx3, corr_signal_3(idx3),'dr');
         title('Zoom 1 on max'); legend('ref (slice 1)','ref check (slice 3)'); ylim([-0.1 1.1]); xlim([idx_left idx_right]); grid;
+        ylabel('Correlation');
 
         idx_left = idx-win_len2;
         if idx_left < 1 
@@ -268,6 +270,7 @@ function [ doa_meters, doa_samples, reliability ] = tdoa2(signal1_complex, signa
         subplot(4,2,5);
         plot(idx_left:idx_right, corr_signal_1(idx_left:idx_right),'o-', idx_left:idx_right, corr_signal_3(idx_left:idx_right) ,'x-', idx_left:idx_right, delay_mask(idx_left:idx_right), 'r', idx1, corr_signal_1(idx1),'dr', idx3, corr_signal_3(idx3),'dr');
         title('Zoom 2 on max'); legend('ref (slice 1)','ref check (slice 3)'); ylim([-0.1 1.1]); xlim([idx_left idx_right]); grid;
+        ylabel('Correlation');
 
         idx_left = idx-win_len3;
         if idx_left < 1 
@@ -291,16 +294,17 @@ function [ doa_meters, doa_samples, reliability ] = tdoa2(signal1_complex, signa
         end
         
         title('Zoom 3 on max'); legend('ref (slice 1)','ref check (slice 3)', 'ref interp', 'ref check interp'); ylim([-0.1 1.1]); xlim([idx_left idx_right]); grid;
-
+        ylabel('Correlation');
+        xlabel('Time Delay');
 
         % display measurement signal
         subplot(4,2,2);
         plot(1:length(corr_signal_2), corr_signal_2, 1:length(corr_signal_2), delay_mask, 'r', idx2, corr_signal_2(idx2),'dr');
         title('MEASUREMENT SIGNAL: correlations, full span'); ylim([-0.1 1.1]); grid;
 
-        win_len1 = 10000;
-        win_len2 = 500;
-        win_len3 = 50;
+        % win_len1 = 10000;
+        % win_len2 = 500;
+        % win_len3 = 50;
 
         %[c, idx] = max(corr_signal_2);
         idx = idx2;
@@ -352,6 +356,7 @@ function [ doa_meters, doa_samples, reliability ] = tdoa2(signal1_complex, signa
         end
         
         title('Zoom 3 on max'); ylim([-0.1 1.1]); xlim([idx_left idx_right]); grid;
+        xlabel('Time Delay');
     end;
 
   
