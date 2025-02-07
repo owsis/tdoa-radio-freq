@@ -1,1 +1,6 @@
 .vscode
+
+*.o
+
+TDOA-MATHLAB/coba/*.html
+*.dat
