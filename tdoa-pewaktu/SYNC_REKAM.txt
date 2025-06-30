@@ -1,0 +1,3 @@
+ssh alarm@192.168.0.4 /home/alarm/librtlsdr-2freq/build/src/rtl_sdr -f <freq_1_hz> -h <freq_2_hz> -n 1.2e6 1_filename.dat &
+ssh alarm@192.168.0.5 /home/alarm/librtlsdr-2freq/build/src/rtl_sdr -f <freq_1_hz> -h <freq_2_hz> -n 1.2e6 2_filename.dat &
+ssh alarm@15.16.17.18 -p 1111 /home/alarm/librtlsdr-2freq/build/src/rtl_sdr -f <freq_1_hz> -h <freq_2_hz> -n 1.2e6 3_filename.dat
