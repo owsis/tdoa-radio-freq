@@ -1,4 +1,4 @@
-function [ output_args ] = create_html_file_osm( filename, rx_lat, rx_long, hyperbola_lat, hyperbola_long, heatmap_cell, heatmap_threshold )
+function [ output_args ] = create_html_file_osm( filename, rx_lat, rx_long, hyperbola_lat, hyperbola_long, heatmap_cell, heatmap_threshold, delay_ref_sample, mae_data )
 %CREATE_HTML_FILE   Generates the html code for open street map showing RX
 %                   positions and the hyperbolas
 %
@@ -71,7 +71,7 @@ fprintf(fid, [...
     '<head>\n'...
     '<title>Simple Leaflet Map</title>\n'...
     '<meta charset="utf-8" />\n'...
-    '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""\n'...
+    '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">\n'...
     '</head>\n'...
     '\n'...
     '<body>\n'...
@@ -80,7 +80,7 @@ fprintf(fid, [...
     '\n'...
     '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""> </script>\n'...
     '\n'...
-    '<script src="leaflet-heat.js"> </script>\n'... % Add by Siswo
+    '<script src="assets/leaflet-heat.js"> </script>\n'... % Add by Siswo
     '\n'... % Add by Siswo
     '<script>\n'...
     '  var map = L.map("map").setView([ ' num2str(mean(rx_lat), 8) ', ' num2str(mean(rx_long), 8) '], 13); \n'...
@@ -101,6 +101,11 @@ fprintf(fid, ['  var targetPointIcon = L.icon({ \n'...
     '                            iconSize: [60, 50], \n'...
     '                            iconAnchor: [18, 50], \n'...
     '                            popupAnchor:  [-3, -53] }); \n\n']);
+fprintf(fid, ['  var refPointIcon = L.icon({ \n'...
+    '                            iconUrl: \'' assets/referensi-point.png \'', \n'...
+    '                            iconSize: [60, 50], \n'...
+    '                            iconAnchor: [18, 50], \n'...
+    '                            popupAnchor:  [-3, -53] }); \n\n']);
 fprintf(fid, ['  var hasilPointIcon = L.icon({ \n'...
     '                            iconUrl: \'' assets/hasil-point.png \'', \n'...
     '                            iconSize: [60, 47], \n'...
@@ -118,7 +123,7 @@ for ii = 1:7
                 case 4
                     fprintf(fid, '                            {title: \'' Target\'', icon: targetPointIcon}) \n');
                 case 5
-                    fprintf(fid, '                            {title: \'' Referensi\'', icon: targetPointIcon}) \n');
+                    fprintf(fid, '                            {title: \'' Referensi\'', icon: refPointIcon}) \n');
                 case 6
                     fprintf(fid, '                            {title: \'' Center Point of Surabaya\''}) \n');
                 case 7
@@ -126,9 +131,9 @@ for ii = 1:7
             end
         end
         fprintf(fid, '                            .addTo(map) \n');
-
+        
         if (ii < 4)
-            fprintf(fid, ['                            .bindPopup(\''Receiver ' int2str(ii) ' \''); \n\n']); % label when user klicks on marker
+            fprintf(fid, ['                            .bindPopup(\''Receiver ' int2str(ii) ' | Delay Ref Sample: ' num2str(delay_ref_sample{ii}, 8) ' \''); \n\n']); % label when user klicks on marker
         else
             switch ii
                 case 4
@@ -144,7 +149,16 @@ for ii = 1:7
                     akurasi = 100 * (1-(dist_latlong(rx_lat(4), rx_long(4), rx_lat(ii), rx_long(ii), rx_lat(6), rx_long(6)) / dist_latlong( rx_lat(8), rx_long(8), rx_lat(4), rx_long(4), rx_lat(6), rx_long(6))));
                     
                     disp(['akurasi hyperbola => ', num2str(akurasi), '%']);
-                    fprintf(fid, ['                            .bindPopup(\''AVG | ' num2str(rx_lat(ii), 8) ', ' num2str(rx_long(ii), 8) ' | ' num2str(akurasi, 3) ' \''); \n\n']);
+                    if exist('mae_data', 'var') && isstruct(mae_data)
+                        disp(['error hyperbola => ', num2str(mae_data.hyperbola_mae, '%.2f'), ' meters']);
+                    end
+                    
+                    % Build popup with MAE and Std Dev info
+                    popup_text = ['AVG | ' num2str(rx_lat(ii), 8) ', ' num2str(rx_long(ii), 8) ' | Akurasi: ' num2str(akurasi, 3)];
+                    if exist('mae_data', 'var') && isstruct(mae_data)
+                        popup_text = [popup_text ' | MAE: ' num2str(mae_data.hyperbola_mae, '%.2f') 'm | Std: ' num2str(mae_data.hyperbola_std, '%.2f') 'm'];
+                    end
+                    fprintf(fid, ['                            .bindPopup(\'' ' popup_text ' \''); \n\n']);
             end
         end
     end
@@ -242,6 +256,9 @@ for ii_lat = 1:heat_num_points
                 % akurasi = 100 * (1-(dist_latlong(tx_target_lat, tx_target_long, lat_calc, long_calc, geo_ref_lat, geo_ref_long) / dist_latlong( rx_lat(8), centerarea_long, tx_target_lat, tx_target_long, geo_ref_lat, geo_ref_long)));
                 akurasi = 100 * (1-(dist_latlong(rx_lat(4), rx_long(4), heat_lat(ii_lat), heat_long(ii_long), rx_lat(6), rx_long(6)) / dist_latlong( rx_lat(8), rx_long(8), rx_lat(4), rx_long(4), rx_lat(6), rx_long(6))));
                 disp(['akurasi heatmap => ', num2str(akurasi), '%']);
+                if exist('mae_data', 'var') && isstruct(mae_data)
+                    disp(['error heatmap => ', num2str(mae_data.heatmap_mae, '%.2f'), ' meters']);
+                end
             end
             fprintf(fid, ['    [' num2str(heat_lat(ii_lat), 8) ', ' num2str(heat_long(ii_long), 8) ', ' num2str(heat_mag(ii_long, ii_lat)) ']']) ;
             
@@ -268,7 +285,13 @@ end
 fprintf(fid, ['  var maxHeatPoint = L.marker([' num2str(max_heat_mag_lat, 8) ', ' num2str(max_heat_mag_long, 8) '], \n'...
     '                            {title: \'' Max Heat Point \'', icon: hasilPointIcon}) \n'...
     '                            .addTo(map) \n']);
-fprintf(fid, ['                            .bindPopup(\'' Max Heat | ' num2str(max_heat_mag_lat, 8) ', ' num2str(max_heat_mag_long, 8) ' | ' num2str(akurasi, 3) ' \''); \n\n']);
+
+% Build popup for heatmap peak with MAE and Std Dev info
+heatmap_popup_text = ['Max Heat | ' num2str(max_heat_mag_lat, 8) ', ' num2str(max_heat_mag_long, 8) ' | ' num2str(akurasi, 3)];
+if exist('mae_data', 'var') && isstruct(mae_data) && ~isnan(mae_data.heatmap_mae)
+    heatmap_popup_text = [heatmap_popup_text ' | MAE: ' num2str(mae_data.heatmap_mae, '%.2f') 'm | Std: ' num2str(mae_data.heatmap_std, '%.2f') 'm'];
+end
+fprintf(fid, ['                            .bindPopup(\''' heatmap_popup_text ' \''); \n\n']);
 
 
 %% footer

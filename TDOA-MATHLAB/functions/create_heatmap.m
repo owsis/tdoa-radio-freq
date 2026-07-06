@@ -37,16 +37,34 @@ function [ heat_long, heat_lat, mse_doa, start_lat, stop_lat, start_long, stop_l
             % calculate mean squared error of current point in terms of tdoa
 
             % distance current point to receivers
+            % jarak titik heat_lat[lat_idx], heat_long[long_idx] terhadap lat, long rx1
             dist_to_rx1 = dist_latlong( heat_lat(lat_idx), heat_long(long_idx), rx1_lat, rx1_long, geo_ref_lat, geo_ref_long );
+            % jarak titik heat_lat[lat_idx], heat_long[long_idx] terhadap lat, long rx2
             dist_to_rx2 = dist_latlong( heat_lat(lat_idx), heat_long(long_idx), rx2_lat, rx2_long, geo_ref_lat, geo_ref_long );
+            % jarak titik heat_lat[lat_idx], heat_long[long_idx] terhadap lat, long rx3
             dist_to_rx3 = dist_latlong( heat_lat(lat_idx), heat_long(long_idx), rx3_lat, rx3_long, geo_ref_lat, geo_ref_long );
             
             % current doa in meters
             current_doa12 = dist_to_rx1 - dist_to_rx2;
             current_doa13 = dist_to_rx1 - dist_to_rx3;
             current_doa23 = dist_to_rx2 - dist_to_rx3;
+
+            % Kode untuk analisa nilai dist_to_rx dan current_doa
+            % if (lat_idx >= 121) && (lat_idx <= 124) && (long_idx >= 142) && (long_idx <= 143)
+            %     disp(['lat >', num2str(heat_lat(lat_idx), 8)]);
+            %     disp(['long >', num2str(heat_long(long_idx), 8)]);
+            %     disp(['dist_to_rx1 >', num2str(dist_to_rx1)]);
+            %     disp(['dist_to_rx2 >', num2str(dist_to_rx2)]);
+            %     disp(['dist_to_rx3 >', num2str(dist_to_rx3)]);
+            %     disp(['current_doa12 >', num2str(current_doa12)]);
+            %     disp(['current_doa13 >', num2str(current_doa13)]);
+            %     disp(['current_doa23 >', num2str(current_doa23)]);
+            %     disp(' ');
+            % end
             
             % error doa
+            % doa_meters12 = tdoa2(correlation 1 & 2)
+            % 
             % Rumus MSE, example value:
             % current_doa = [10, 20, 30]
             % doa_meter = [8, 18, 28]
@@ -77,7 +95,7 @@ function [ heat_long, heat_lat, mse_doa, start_lat, stop_lat, start_long, stop_l
     % disp(mse_doa);
 
     disp(' ');
-    disp(['max(mse_doa) =>', num2str(max(mse_doa))]);               
+    % disp(['max(mse_doa) =>', num2str(max(mse_doa))]);               
     % ex 2x2 => max(mse_doa) = [0,000000077041602, 0,000000022133687]
     disp(['max(max(mse_doa)) =>', num2str(max(max(mse_doa)))]);    
     % ex 2x2 => max(max(mse_doa)) = [0,000000077041602]
